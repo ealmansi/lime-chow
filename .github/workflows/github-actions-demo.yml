@@ -9,9 +9,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - run: npm install
-      - run: |
-          npm --version
-          node --version
-          npx ts-node-esm --version
+      - run: npm ci
+      - run: npm run build
       - run: npm run main
