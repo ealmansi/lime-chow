@@ -5,7 +5,7 @@
   "type": "module",
   "main": "src/main.ts",
   "scripts": {
-    "main": "ts-node --esm src/main.ts",
+    "main": "ts-node-esm src/main.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
