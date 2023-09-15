@@ -23,7 +23,7 @@ class MadameClaudeSpider(scrapy.Spider):
         ).extract_first()
         yield LimeChowItem(
             id = (
-                "madame_claude-" + re.sub("[^a-z0-9]+", "-", date + "-" + title.lower()).strip("-")
+                "madame-claude-" + re.sub("[^a-z0-9]+", "-", date + "-" + title.lower()).strip("-")
             )[:80],
             url = response.url,
             title = title,
