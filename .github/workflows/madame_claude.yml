@@ -7,7 +7,7 @@ permissions:
   id-token: write
 
 jobs:
-  main:
+  madame_claude:
     uses: ./.github/workflows/run_spider.yml
     with:
       spider: madame_claude
