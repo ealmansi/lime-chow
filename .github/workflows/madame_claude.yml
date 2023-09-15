@@ -1,0 +1,10 @@
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 18 * * *'
+
+jobs:
+  main:
+    uses: ./.github/workflows/run_spider.yml
+    with:
+      spider: madame_claude
