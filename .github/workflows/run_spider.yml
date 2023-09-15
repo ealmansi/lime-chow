@@ -1,0 +1,31 @@
+on:
+  workflow_dispatch:
+    inputs:
+      spider:
+        required: true
+
+permissions:
+  id-token: write
+
+env:
+  AWS_ROLE: arn:aws:iam::131164827647:role/GitHubActionsLimeChowRole
+  AWS_REGION: eu-central-1
+  AWS_S3_BUCKET: s3://lime-chow
+  SPIDER: ${{ github.event.inputs.spider }}
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE }}
+          aws-region: ${{ env.AWS_REGION }}
+      - run: pip install pipenv
+      - run: pipenv install
+      - run: pipenv run scrapy crawl --output output/$SPIDER/$GITHUB_RUN_ID.json $SPIDER
+      - run: aws s3 sync output $AWS_S3_BUCKET
