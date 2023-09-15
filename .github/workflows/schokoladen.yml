@@ -1,0 +1,15 @@
+on:
+  - workflow_dispatch
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - run: pip install pipenv
+      - run: |
+          pipenv install
+          pipenv run schokoladen

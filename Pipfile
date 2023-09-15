@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+scrapy = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"
+
+[scripts]
+madame_claude = "scrapy crawl --overwrite-output out/madame_claude.json madame_claude"
+schokoladen = "scrapy crawl --overwrite-output out/schokoladen.json schokoladen"
