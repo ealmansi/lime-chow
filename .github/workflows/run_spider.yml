@@ -28,5 +28,6 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       - run: pip install pipenv
       - run: pipenv install
+      - run: echo pipenv run scrapy crawl --output output/$SPIDER/$GITHUB_RUN_ID.json $SPIDER
       - run: pipenv run scrapy crawl --output output/$SPIDER/$GITHUB_RUN_ID.json $SPIDER
       - run: aws s3 sync output $AWS_S3_BUCKET
