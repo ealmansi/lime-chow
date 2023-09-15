@@ -20,6 +20,6 @@ jobs:
           role-to-assume: arn:aws:iam::131164827647:role/GitHubActionsLimeChowRole
           aws-region: eu-central-1
       - run: |
-      scrapy crawl --overwrite-output out/madame_claude.json madame_claude
+          scrapy crawl --overwrite-output out/madame_claude.json madame_claude
       - run: |
           aws s3 sync out s3://lime-chow
