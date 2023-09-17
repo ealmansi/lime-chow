@@ -161,3 +161,7 @@ cython_debug/
 
 # artifacts
 out
+
+# Dependency directories
+node_modules
+jspm_packages

@@ -1,0 +1,25 @@
+on:
+  push:
+
+permissions:
+  id-token: write
+
+env:
+  AWS_ROLE: arn:aws:iam::131164827647:role/GitHubActionsLimeChowRole
+  AWS_REGION: eu-central-1
+
+jobs:
+  deploy_api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE }}
+          aws-region: ${{ env.AWS_REGION }}
+      - run: cd lime-chow-api
+      - run: npm ci
+      - run: npx serverless deploy
