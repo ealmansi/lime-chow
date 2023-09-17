@@ -1,0 +1,13 @@
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '10 20 * * *'
+
+permissions:
+  id-token: write
+
+jobs:
+  wild_at_heart:
+    uses: ./.github/workflows/run_spider.yml
+    with:
+      spider: wild_at_heart
