@@ -11,8 +11,6 @@ permissions:
 env:
   AWS_ROLE: arn:aws:iam::131164827647:role/GitHubActionsLimeChowRole
   AWS_REGION: eu-central-1
-  AWS_S3_BUCKET: s3://lime-chow
-  SPIDER: ${{ inputs.spider }}
 
 jobs:
   run_spider:
@@ -28,5 +26,4 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       - run: pip install pipenv
       - run: pipenv install
-      - run: pipenv run scrapy crawl --output output/$SPIDER/$GITHUB_RUN_ID.json $SPIDER
-      - run: aws s3 sync output $AWS_S3_BUCKET
+      - run: pipenv run scrapy crawl ${{ inputs.spider }}
