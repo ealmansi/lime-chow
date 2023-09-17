@@ -10,7 +10,7 @@ functions:
 
 provider:
   name: aws
-  region: eu-central-1
+  region: us-east-1
   runtime: nodejs18.x
   iam:
     role:
