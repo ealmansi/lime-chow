@@ -38,12 +38,16 @@ function renderEvents (events) {
 }
 
 function renderEvent (event) {
+  const format = require('date-fns/format');
+  const parse = require('date-fns/parse');
+  const date = parse(event.date, "dd/MM/yy", new Date());
   const venueMetadata = getVenueMetadata(event.venue);
   return (`
     <li id="${event.id}">
       <h4>
         ${[
           event.date,
+          format(date, "EEEE"),
           ...(venueMetadata ? [venueMetadata.name] : []),
           ...(venueMetadata ? [venueMetadata.neighbourhood] : []),
         ].join(" - ")}
@@ -105,7 +109,7 @@ function compareEvents (event1, event2) {
     return event1.id.localeCompare(event2.id);
   }
   const parse = require('date-fns/parse');
-  const compareAsc = require('date-fns/compareAsc')
+  const compareAsc = require('date-fns/compareAsc');
   const date1 = parse(event1.date, "dd/MM/yy", new Date());
   const date2 = parse(event2.date, "dd/MM/yy", new Date());
   return compareAsc(date1, date2);
