@@ -1,4 +1,5 @@
 import scrapy
+import urllib.parse
 import re
 from datetime import datetime
 from lime_chow.items import LimeChowItem
@@ -26,9 +27,11 @@ class WildAtHeartSpider(scrapy.Spider):
                 url = response.url,
                 title = title,
                 date = date,
-                thumbnail_url = "http://wildatheartberlin.de" + event.xpath(
-                    ".//img/@src"
-                ).extract_first(),
+                thumbnail_url = "http://wildatheartberlin.de" + urllib.parse.quote(
+                    event.xpath(
+                        ".//img/@src"
+                    ).extract_first()
+                ),
                 extracted_at = datetime.now().isoformat()
             )
 
