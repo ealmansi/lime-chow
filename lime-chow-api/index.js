@@ -14,6 +14,12 @@ function renderPage (events) {
         img {
           max-width: 400px;
         }
+        h4 {
+          margin-bottom: 5px;
+        }
+        h3 {
+          margin-top: 5px;
+        }
       </style>
     </head>
     <body>
