@@ -27,7 +27,7 @@ class WildAtHeartSpider(scrapy.Spider):
                 url = response.url,
                 title = title,
                 date = date,
-                thumbnail_url = "http://wildatheartberlin.de" + urllib.parse.quote(
+                thumbnail_url = "https://wsrv.nl/?url=wildatheartberlin.de" + urllib.parse.quote(
                     event.xpath(
                         ".//img/@src"
                     ).extract_first()
