@@ -1,5 +1,7 @@
 on:
   push:
+    paths:
+      - lime-chow-api/**
 
 permissions:
   id-token: write

@@ -25,6 +25,7 @@ class MadameClaudeSpider(scrapy.Spider):
             id = (
                 "madame-claude-" + re.sub("[^a-z0-9]+", "-", date + "-" + title.lower()).strip("-")
             )[:80],
+            venue = self.name,
             url = response.url,
             title = title,
             date = date,

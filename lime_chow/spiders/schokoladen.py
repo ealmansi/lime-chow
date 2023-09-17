@@ -23,6 +23,7 @@ class SchokoladenSpider(scrapy.Spider):
                 id = (
                     "schokoladen-" + re.sub("[^a-z0-9]+", "-", date + "-" + title.lower()).strip("-")
                 )[:80],
+                venue = self.name,
                 url = event.xpath(
                     ".//a[contains(@class, 'ticketlink')]/@href"
                 ).extract_first() or response.url,

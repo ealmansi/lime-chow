@@ -2,6 +2,7 @@ import scrapy
 
 class LimeChowItem(scrapy.Item):
     id = scrapy.Field()
+    venue = scrapy.Field()
     url = scrapy.Field()
     title = scrapy.Field()
     date = scrapy.Field()
