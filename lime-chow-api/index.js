@@ -32,16 +32,35 @@ function renderEvents (events) {
 }
 
 function renderEvent (event) {
+  const venueMetadata = getVenueMetadata(event.venue);
   return (`
     <li id="${event.id}">
       <h3>
         <a href="${event.url}" target="_blank" rel="noreferrer">
-          <em>${event.date}</em> - ${event.title}
+          ${[
+            event.date,
+            ...(venueMetadata ? [venueMetadata.name] : []),
+            ...(venueMetadata ? [venueMetadata.neighbourhood] : []),
+            event.title,
+          ].join(" - ")}
         </a>
       </h3>
       <img src="${event.thumbnail_url}" alt="${event.title}" />
     </li>
   `);
+}
+
+function getVenueMetadata (venue) {
+  return {
+    ["madame_claude"]: {
+      name: "Madame Claude",
+      neighbourhood: "Kreuzberg",
+    },
+    ["schokoladen"]: {
+      name: "Schokoladen",
+      neighbourhood: "Mitte",
+    },
+  }[venue];
 }
 
 /**
