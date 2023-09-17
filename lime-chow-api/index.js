@@ -68,6 +68,10 @@ function getVenueMetadata (venue) {
       name: "Schokoladen",
       neighbourhood: "Mitte",
     },
+    ["wild_at_heart"]: {
+      name: "Wild at Heart",
+      neighbourhood: "Kreuzberg",
+    },
   }[venue];
 }
 
