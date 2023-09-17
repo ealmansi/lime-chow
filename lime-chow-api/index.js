@@ -35,14 +35,16 @@ function renderEvent (event) {
   const venueMetadata = getVenueMetadata(event.venue);
   return (`
     <li id="${event.id}">
+      <h4>
+        ${[
+          event.date,
+          ...(venueMetadata ? [venueMetadata.name] : []),
+          ...(venueMetadata ? [venueMetadata.neighbourhood] : []),
+        ].join(" - ")}
+      </h4>
       <h3>
         <a href="${event.url}" target="_blank" rel="noreferrer">
-          ${[
-            event.date,
-            ...(venueMetadata ? [venueMetadata.name] : []),
-            ...(venueMetadata ? [venueMetadata.neighbourhood] : []),
-            event.title,
-          ].join(" - ")}
+          ${event.title}
         </a>
       </h3>
       <img src="${event.thumbnail_url}" alt="${event.title}" />
