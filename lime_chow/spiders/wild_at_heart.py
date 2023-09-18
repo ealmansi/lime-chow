@@ -1,4 +1,5 @@
 import scrapy
+import urllib.parse
 from lime_chow.items import EventItem
 from lime_chow.utils import EventUtils
 
@@ -68,5 +69,7 @@ class WildAtHeartSpider(scrapy.Spider):
             "//img",
             "/@src",
         ])).extract_first()
-        # Use wsrv.nl to work around non-https img sources
-        return "https://wsrv.nl/?url=wildatheartberlin.de" + img_src
+        # Use wsrv.nl to work around non-https img sources.
+        return "https://wsrv.nl/?url=" + urllib.parse.quote(
+            "wildatheartberlin.de" + img_src
+        )
