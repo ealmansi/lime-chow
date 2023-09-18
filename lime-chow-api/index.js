@@ -81,13 +81,13 @@ function compareEventLinks (link1, link2) {
 
 function getEventLinkPriority (link) {
   const priorities = [
-    [100, link => link.contains("linktr.ee")],
-    [100, link => link.contains("bandcamp.com")],
-    [100, link => link.contains("soundcloud.com")],
-    [100, link => link.contains("mixcloud.com")],
-    [200, link => link.contains("youtube.com")],
-    [1000, link => link.contains("facebook.com/events")],
-    [300, link => link.contains("facebook.com")],
+    [100, link => link.includes("linktr.ee")],
+    [100, link => link.includes("bandcamp.com")],
+    [100, link => link.includes("soundcloud.com")],
+    [100, link => link.includes("mixcloud.com")],
+    [200, link => link.includes("youtube.com")],
+    [1000, link => link.includes("facebook.com/events")],
+    [300, link => link.includes("facebook.com")],
     [900, () => true],
   ];
   for (const [priority, matcher] of priorities) {
