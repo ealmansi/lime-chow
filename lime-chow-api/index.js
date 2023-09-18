@@ -20,6 +20,12 @@ function renderPage (events) {
         h3 {
           margin-top: 5px;
         }
+        .event-thumbnail {
+          margin-bottom: 10px;
+        }
+        .event-links {
+          list-style-type: none;
+        }
       </style>
     </head>
     <body>
@@ -43,7 +49,7 @@ function renderEvent (event) {
   const date = parse(event.date, "dd/MM/yy", new Date());
   const venueMetadata = getVenueMetadata(event.venue);
   return (`
-    <li id="${event.id}">
+    <li id="${event.id}" class="event">
       <h4>
         ${[
           event.date,
@@ -57,8 +63,8 @@ function renderEvent (event) {
           ${event.title}
         </a>
       </h3>
+      <img class="event-thumbnail" src="${event.thumbnail_url}" alt="${event.title}" />
       ${renderEventLinks(event.links ?? [])}
-      <img src="${event.thumbnail_url}" alt="${event.title}" />
     </li>
   `);
 }
@@ -69,38 +75,16 @@ function renderEventLinks (links) {
     .sort(compareEventLinks)
     .slice(0, 3);
   return (`
-    <ul>
+    <ul class="event-links">
       ${topLinks.map(renderEventLink).join("\n")}
     </ul>
   `);
 }
 
-function compareEventLinks (link1, link2) {
-  return getEventLinkPriority(link1) - getEventLinkPriority(link2);
-}
-
-function getEventLinkPriority (link) {
-  const priorities = [
-    [100, link => link.includes("linktr.ee")],
-    [100, link => link.includes("bandcamp.com")],
-    [100, link => link.includes("soundcloud.com")],
-    [100, link => link.includes("mixcloud.com")],
-    [200, link => link.includes("youtube.com")],
-    [1000, link => link.includes("facebook.com/events")],
-    [300, link => link.includes("facebook.com")],
-    [900, () => true],
-  ];
-  for (const [priority, matcher] of priorities) {
-    if (matcher(link)) {
-      return priority;
-    }
-  }
-}
-
 function renderEventLink (link) {
   return (`
     <li>
-      <a href="${link}">${link}</a>
+      <a href="${link}" target="_blank" rel="noreferrer">${link}</a>
     </li>
   `);
 }
@@ -128,6 +112,28 @@ function getVenueMetadata (venue) {
       neighbourhood: "Neukölln",
     },
   }[venue];
+}
+
+function compareEventLinks (link1, link2) {
+  return getEventLinkPriority(link1) - getEventLinkPriority(link2);
+}
+
+function getEventLinkPriority (link) {
+  const priorities = [
+    [100, link => link.includes("linktr.ee")],
+    [100, link => link.includes("bandcamp.com")],
+    [100, link => link.includes("soundcloud.com")],
+    [100, link => link.includes("mixcloud.com")],
+    [200, link => link.includes("youtube.com")],
+    [1000, link => link.includes("facebook.com/events")],
+    [300, link => link.includes("facebook.com")],
+    [900, () => true],
+  ];
+  for (const [priority, matcher] of priorities) {
+    if (matcher(link)) {
+      return priority;
+    }
+  }
 }
 
 /**
