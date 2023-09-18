@@ -10,4 +10,4 @@ jobs:
   wild_at_heart:
     uses: ./.github/workflows/run_spider.yml
     with:
-      spider: wild_at_heart
+      spider: ${{ github.job }}

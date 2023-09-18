@@ -1,13 +1,13 @@
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 20 * * *'
+    - cron: '15 20 * * *'
 
 permissions:
   id-token: write
 
 jobs:
-  madame_claude:
+  peppi_guggenheim:
     uses: ./.github/workflows/run_spider.yml
     with:
       spider: ${{ github.job }}

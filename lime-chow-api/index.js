@@ -76,6 +76,10 @@ function getVenueMetadata (venue) {
       name: "Wild at Heart",
       neighbourhood: "Kreuzberg",
     },
+    ["peppi_guggenheim"]: {
+      name: "Peppi Guggenheim",
+      neighbourhood: "Neukölln",
+    },
   }[venue];
 }
 
