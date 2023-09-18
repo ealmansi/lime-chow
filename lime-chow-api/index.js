@@ -84,7 +84,7 @@ function renderEventLinks (links) {
 function renderEventLink (link) {
   return (`
     <li>
-      <a href="${link}" target="_blank" rel="noreferrer">${link}</a>
+      <a href="${link}" target="_blank" rel="noreferrer">${link.slice(0, 60)}</a>
     </li>
   `);
 }
