@@ -9,7 +9,7 @@ function renderPage (events) {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Lime Chow</title>
+      <title>Chow</title>
       <style>
         img {
           max-width: 400px;
