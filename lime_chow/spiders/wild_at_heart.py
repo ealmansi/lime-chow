@@ -1,4 +1,5 @@
 import scrapy
+import validators
 import urllib.parse
 from lime_chow.items import EventItem
 from lime_chow.utils import EventUtils
@@ -15,6 +16,7 @@ class WildAtHeartSpider(scrapy.Spider):
             title = self.get_event_title(event)
             url = response.url
             thumbnail_url = self.get_event_thumbnail_url(event)
+            links = self.get_event_links(event)
             yield EventItem(
                 id = EventUtils.build_id(venue, date, title),
                 extracted_at = EventUtils.get_current_datetime(),
@@ -23,7 +25,7 @@ class WildAtHeartSpider(scrapy.Spider):
                 title = title,
                 url = url,
                 thumbnail_url = thumbnail_url,
-                links = [],
+                links = links,
             )
 
     def get_event_title(self, event):
@@ -74,3 +76,13 @@ class WildAtHeartSpider(scrapy.Spider):
         return "https://wsrv.nl/?url=" + urllib.parse.quote(
             "wildatheartberlin.de" + img_src
         )
+
+    def get_event_links(self, event):
+        links = event.xpath("".join([
+            ".",
+            "//a",
+            "/@href",
+        ])).extract()
+        links = list(filter(validators.url, links))
+        links = links[:10]
+        return links
