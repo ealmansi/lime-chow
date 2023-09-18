@@ -1,8 +1,6 @@
 import scrapy
-import re
-from datetime import datetime
-from lime_chow.items import LimeChowItem
-
+from lime_chow.items import EventItem
+from lime_chow.utils import EventUtils
 
 class SchokoladenSpider(scrapy.Spider):
     name = "schokoladen"
@@ -10,32 +8,49 @@ class SchokoladenSpider(scrapy.Spider):
     start_urls = ["https://schokoladen-mitte.de/"]
 
     def parse(self, response):
-        for event in response.css(
-            ".event"
-        ):
-            title = event.xpath(
-                ".//div[contains(@class, 'title')]//div/text()"
-            ).extract_first().strip()
-            date = event.xpath(
-                ".//div[contains(@class, 'eventHeader')]//div[contains(@class, 'subHeader')]//span[2]/text()"
-            ).extract_first().replace(".", "/") + "23" # TODO: Fix year
-            yield LimeChowItem(
-                id = (
-                    "schokoladen-" + re.sub("[^a-z0-9]+", "-", date + "-" + title.lower()).strip("-")
-                )[:80],
-                venue = self.name,
-                url = event.xpath(
-                    ".//a[contains(@class, 'ticketlink')]/@href"
-                ).extract_first() or response.url,
-                title = title,
-                date = date,
-                thumbnail_url = "https://www.schokoladen-mitte.de" + (
-                    event.xpath(
-                        ".//div[contains(@class, 'imageWrapper')]//img/@src"
-                    ).extract_first() or
-                    event.xpath(
-                        ".//div[contains(@class, 'carousel-item')]//img/@src"
-                    ).extract_first()
-                ),
-                extracted_at = datetime.now().isoformat()
+        for event in response.css(".event"):
+            venue = self.name
+            date = self.get_event_date(event)
+            title = event.xpath("".join([
+                ".",
+                "//div[contains(@class, 'title')]",
+                "//div",
+                "/text()",
+            ])).extract_first().strip()
+            url = event.xpath("".join([
+                ".//a[contains(@class, 'ticketlink')]/@href"
+            ])).extract_first() or response.url,
+            thumbnail_url = "https://www.schokoladen-mitte.de" + (
+                event.xpath("".join([
+                    ".",
+                    "//div[contains(@class, 'imageWrapper')]",
+                    "//img",
+                    "/@src",
+                ])).extract_first() or
+                event.xpath("".join([
+                    ".",
+                    "//div[contains(@class, 'carousel-item')]",
+                    "//img",
+                    "/@src",
+                ])).extract_first()
             )
+            yield EventItem(
+                id = EventUtils.build_id(venue, date, title),
+                extracted_at = EventUtils.get_current_datetime(),
+                venue = venue,
+                date = date,
+                title = title,
+                url = url,
+                thumbnail_url = thumbnail_url,
+            )
+
+    def get_event_date(self, event):
+        date_prefix = event.xpath("".join([
+            ".",
+            "//div[contains(@class, 'eventHeader')]",
+            "//div[contains(@class, 'subHeader')]",
+            "//span[2]",
+            "/text()",
+        ])).extract_first()
+        # TODO: Fix year
+        return date_prefix.replace(".", "/") + "23"

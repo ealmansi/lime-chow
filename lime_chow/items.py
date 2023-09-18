@@ -1,10 +1,10 @@
 import scrapy
 
-class LimeChowItem(scrapy.Item):
+class EventItem(scrapy.Item):
     id = scrapy.Field()
-    venue = scrapy.Field()
-    url = scrapy.Field()
-    title = scrapy.Field()
-    date = scrapy.Field()
-    thumbnail_url = scrapy.Field()
     extracted_at = scrapy.Field()
+    venue = scrapy.Field()
+    date = scrapy.Field()
+    title = scrapy.Field()
+    url = scrapy.Field()
+    thumbnail_url = scrapy.Field()

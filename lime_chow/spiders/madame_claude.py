@@ -1,7 +1,6 @@
 import scrapy
-import re
-from datetime import datetime
-from lime_chow.items import LimeChowItem
+from lime_chow.items import EventItem
+from lime_chow.utils import EventUtils
 
 class MadameClaudeSpider(scrapy.Spider):
     name = "madame_claude"
@@ -9,28 +8,39 @@ class MadameClaudeSpider(scrapy.Spider):
     start_urls = ['https://madameclaude.de/events/']
 
     def parse(self, response):
-        for event_url in response.xpath(
-            "//article//div[contains(@class, 'title')]//a/@href"
-        ).extract():
+        for event_url in response.xpath("".join([
+            "//article",
+            "//div[contains(@class, 'title')]",
+            "//a",
+            "/@href",
+        ])).extract():
             yield scrapy.Request(url=event_url, callback=self.parse_event)
 
     def parse_event(self, response):
-        title = response.xpath(
-            "//article//h2/text()"
-        ).extract_first()
-        date = response.xpath(
-            "//article//div[contains(@class, 'date')]//p[contains(@class, 'numbers')]//text()"
-        ).extract_first()
-        yield LimeChowItem(
-            id = (
-                "madame-claude-" + re.sub("[^a-z0-9]+", "-", date + "-" + title.lower()).strip("-")
-            )[:80],
-            venue = self.name,
-            url = response.url,
-            title = title,
+        venue = self.name
+        date = response.xpath("".join([
+            "//article",
+            "//div[contains(@class, 'date')]",
+            "//p[contains(@class, 'numbers')]",
+            "//text()",
+        ])).extract_first()
+        title = response.xpath("".join([
+            "//article",
+            "//h2",
+            "/text()",
+        ])).extract_first()
+        url = response.url
+        thumbnail_url = response.xpath("".join([
+            "//article",
+            "//img",
+            "/@src",
+        ])).extract_first()
+        yield EventItem(
+            id = EventUtils.build_id(venue, date, title),
+            extracted_at = EventUtils.get_current_datetime(),
+            venue = venue,
             date = date,
-            thumbnail_url = response.xpath(
-                "//article//img/@src"
-            ).extract_first(),
-            extracted_at = datetime.now().isoformat()
+            title = title,
+            url = url,
+            thumbnail_url = thumbnail_url,
         )
