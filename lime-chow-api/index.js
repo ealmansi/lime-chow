@@ -117,10 +117,10 @@ function compareEvents (event1, event2) {
 
 function isUpcoming (event) {
   const parse = require('date-fns/parse');
-  const isAfter = require('date-fns/isAfter');
+  const isBefore = require('date-fns/isBefore');
   const startOfDay = require('date-fns/startOfDay')
   const date = parse(event.date, "dd/MM/yy", new Date());
-  return isAfter(startOfDay(date), startOfDay(new Date()));
+  return !isBefore(startOfDay(date), startOfDay(new Date()));
 }
 
 /**
