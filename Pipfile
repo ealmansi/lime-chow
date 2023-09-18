@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 scrapy = "*"
 boto3 = "*"
+validators = "*"
 
 [dev-packages]
 

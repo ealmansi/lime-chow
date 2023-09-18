@@ -1,4 +1,5 @@
 import scrapy
+import validators
 from lime_chow.items import EventItem
 from lime_chow.utils import EventUtils
 
@@ -35,12 +36,7 @@ class MadameClaudeSpider(scrapy.Spider):
             "//img",
             "/@src",
         ])).extract_first()
-        links = response.xpath("".join([
-            "//article",
-            "//div[contains(@class, 'info')]",
-            "//a",
-            "/@href",
-        ])).extract()[:10]
+        links = self.get_event_links(response)
         yield EventItem(
             id = EventUtils.build_id(venue, date, title),
             extracted_at = EventUtils.get_current_datetime(),
@@ -51,3 +47,14 @@ class MadameClaudeSpider(scrapy.Spider):
             thumbnail_url = thumbnail_url,
             links = links,
         )
+
+    def get_event_links(self, response):
+        links = response.xpath("".join([
+            "//article",
+            "//div[contains(@class, 'info')]",
+            "//a",
+            "/@href",
+        ])).extract()
+        links = list(filter(validators.url, links))
+        links = links[:10]
+        return links

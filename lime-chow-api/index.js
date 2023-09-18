@@ -73,7 +73,7 @@ function renderEventLinks (links) {
   const topLinks = links
     .slice()
     .sort(compareEventLinks)
-    .slice(0, 3);
+    .slice(0, 4);
   return (`
     <ul class="event-links">
       ${topLinks.map(renderEventLink).join("\n")}
@@ -124,9 +124,11 @@ function getEventLinkPriority (link) {
     [100, link => link.includes("bandcamp.com")],
     [100, link => link.includes("soundcloud.com")],
     [100, link => link.includes("mixcloud.com")],
+    [100, link => link.includes("spotify.com")],
     [200, link => link.includes("youtube.com")],
+    [300, link => link.includes("instagram.com")],
     [1000, link => link.includes("facebook.com/events")],
-    [300, link => link.includes("facebook.com")],
+    [400, link => link.includes("facebook.com")],
     [900, () => true],
   ];
   for (const [priority, matcher] of priorities) {

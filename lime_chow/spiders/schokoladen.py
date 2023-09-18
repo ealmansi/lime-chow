@@ -1,4 +1,5 @@
 import scrapy
+import validators
 from lime_chow.items import EventItem
 from lime_chow.utils import EventUtils
 
@@ -36,6 +37,7 @@ class SchokoladenSpider(scrapy.Spider):
                     "/@src",
                 ])).extract_first()
             )
+            links = self.get_event_links(event)
             yield EventItem(
                 id = EventUtils.build_id(venue, date, title),
                 extracted_at = EventUtils.get_current_datetime(),
@@ -44,7 +46,7 @@ class SchokoladenSpider(scrapy.Spider):
                 title = title,
                 url = url,
                 thumbnail_url = thumbnail_url,
-                links = [],
+                links = links,
             )
 
     def get_event_date(self, event):
@@ -57,3 +59,16 @@ class SchokoladenSpider(scrapy.Spider):
         ])).extract_first()
         # TODO: Fix year
         return date_prefix.replace(".", "/") + "23"
+
+    def get_event_links(self, event):
+        # TODO: Retrieve more links from description, which is
+        # loaded dynamically upon pressing the button "open".
+        links = event.xpath("".join([
+            ".",
+            "//div[contains(@class, 'links')]",
+            "//a",
+            "/@href",
+        ])).extract()
+        links = list(filter(validators.url, links))
+        links = links[:10]
+        return links
