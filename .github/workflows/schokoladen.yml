@@ -10,4 +10,4 @@ jobs:
   schokoladen:
     uses: ./.github/workflows/run_spider.yml
     with:
-      spider: ${{ github.job }}
+      spider: schokoladen

@@ -10,4 +10,4 @@ jobs:
   madame_claude:
     uses: ./.github/workflows/run_spider.yml
     with:
-      spider: ${{ github.job }}
+      spider: madame_claude

@@ -10,4 +10,4 @@ jobs:
   peppi_guggenheim:
     uses: ./.github/workflows/run_spider.yml
     with:
-      spider: ${{ github.job }}
+      spider: peppi_guggenheim
