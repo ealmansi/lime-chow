@@ -28,6 +28,7 @@ class LoopholeSpider(scrapy.Spider):
                 title = title,
                 url = url,
                 thumbnail_url = thumbnail_url,
+                links = [],
             )
 
     def get_event_date(self, event):

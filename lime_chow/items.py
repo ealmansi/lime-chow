@@ -8,3 +8,4 @@ class EventItem(scrapy.Item):
     title = scrapy.Field()
     url = scrapy.Field()
     thumbnail_url = scrapy.Field()
+    links = scrapy.Field()

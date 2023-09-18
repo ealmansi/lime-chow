@@ -35,6 +35,12 @@ class MadameClaudeSpider(scrapy.Spider):
             "//img",
             "/@src",
         ])).extract_first()
+        links = response.xpath("".join([
+            "//article",
+            "//div[contains(@class, 'info')]",
+            "//a",
+            "/@href",
+        ])).extract()[:10]
         yield EventItem(
             id = EventUtils.build_id(venue, date, title),
             extracted_at = EventUtils.get_current_datetime(),
@@ -43,4 +49,5 @@ class MadameClaudeSpider(scrapy.Spider):
             title = title,
             url = url,
             thumbnail_url = thumbnail_url,
+            links = links,
         )
