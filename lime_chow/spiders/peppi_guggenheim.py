@@ -36,4 +36,4 @@ class PeppiGuggenheimSpider(scrapy.Spider):
             "//time",
             "/@datetime",
         ])).extract_first()
-        return "/".join(datetime.split("-")[::-1])
+        return "/".join(datetime[2:].split("-")[::-1])
