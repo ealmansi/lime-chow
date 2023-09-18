@@ -18,8 +18,10 @@ class SchokoladenSpider(scrapy.Spider):
                 "/text()",
             ])).extract_first().strip()
             url = event.xpath("".join([
-                ".//a[contains(@class, 'ticketlink')]/@href"
-            ])).extract_first() or response.url,
+                ".",
+                "//a[contains(@class, 'ticketlink')]",
+                "/@href",
+            ])).extract_first() or response.url
             thumbnail_url = "https://www.schokoladen-mitte.de" + (
                 event.xpath("".join([
                     ".",
