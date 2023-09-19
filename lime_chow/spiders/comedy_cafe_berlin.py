@@ -39,4 +39,4 @@ class ComedyCafeBerlinSpider(scrapy.Spider):
         text = response.css(
             ".tribe-events-schedule__date::text"
         ).extract_first().strip()
-        return parse_date(text).strftime("%d/%m/%Y")
+        return parse_date(text).strftime("%d/%m/%y")
