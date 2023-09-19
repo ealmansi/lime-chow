@@ -111,6 +111,10 @@ function getVenueMetadata (venue) {
       name: "Loophole",
       neighbourhood: "Neukölln",
     },
+    ["arkaoda"]: {
+      name: "Arkaoda",
+      neighbourhood: "Neukölln",
+    },
   }[venue];
 }
 

@@ -7,6 +7,7 @@ name = "pypi"
 scrapy = "*"
 boto3 = "*"
 validators = "*"
+urlextract = "*"
 
 [dev-packages]
 
@@ -19,3 +20,4 @@ schokoladen = "scrapy crawl --overwrite-output out/schokoladen.json schokoladen"
 wild_at_heart = "scrapy crawl --overwrite-output out/wild_at_heart.json wild_at_heart"
 peppi_guggenheim = "scrapy crawl --overwrite-output out/peppi_guggenheim.json peppi_guggenheim"
 loophole = "scrapy crawl --overwrite-output out/loophole.json loophole"
+arkaoda = "scrapy crawl --overwrite-output out/arkaoda.json arkaoda"

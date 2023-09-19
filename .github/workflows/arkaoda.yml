@@ -1,0 +1,13 @@
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '25 20 * * *'
+
+permissions:
+  id-token: write
+
+jobs:
+  arkaoda:
+    uses: ./.github/workflows/run_spider.yml
+    with:
+      spider: arkaoda
