@@ -1,0 +1,13 @@
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 20 * * *'
+
+permissions:
+  id-token: write
+
+jobs:
+  comedy_cafe_berlin:
+    uses: ./.github/workflows/run_spider.yml
+    with:
+      spider: comedy_cafe_berlin

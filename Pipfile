@@ -8,6 +8,7 @@ scrapy = "*"
 boto3 = "*"
 validators = "*"
 urlextract = "*"
+dateparser = "*"
 
 [dev-packages]
 
@@ -21,3 +22,4 @@ wild_at_heart = "scrapy crawl --overwrite-output out/wild_at_heart.json wild_at_
 peppi_guggenheim = "scrapy crawl --overwrite-output out/peppi_guggenheim.json peppi_guggenheim"
 loophole = "scrapy crawl --overwrite-output out/loophole.json loophole"
 arkaoda = "scrapy crawl --overwrite-output out/arkaoda.json arkaoda"
+comedy_cafe_berlin = "scrapy crawl --overwrite-output out/comedy_cafe_berlin.json comedy_cafe_berlin"

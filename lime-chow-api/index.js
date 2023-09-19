@@ -127,6 +127,11 @@ function getVenueMetadata (venue) {
       neighbourhood: "Neukölln",
       link: "https://maps.app.goo.gl/x4LVYefPDuPfSkBz7",
     },
+    ["comedy_cafe_berlin"]: {
+      name: "Comedy Café Berlin",
+      neighbourhood: "Neukölln",
+      link: "https://maps.app.goo.gl/LyxvV46EjAeecmiq7",
+    },
   }[venue];
 }
 
