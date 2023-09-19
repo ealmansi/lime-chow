@@ -19,27 +19,45 @@ function renderPage (events) {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Chow</title>
       <style>
+        html, body {
+          width: 100%;
+          margin: 0px;
+          padding: 0px;
+          font-family: sans-serif;
+        }
         .events {
+          width: min(400px, 100%);
+          margin: 0px 0px 20px 0px;
+          padding: 10px;
           list-style-type: none;
-          padding-left: 10px;
         }
-        h3 {
-          margin-top: 30px;
-          margin-bottom: 5px;
+        .event {
+          width: 100%;
+          margin: 0px 0px 30px 0px;
+          padding: 0px;
         }
-        h2 {
-          margin-top: 5px;
-          max-width: 400px;
+        .event-info {
+          width: 100%;
+          margin: 0px 0px 5px 0px;
+          padding: 0px;
+        }
+        .event-title {
+          width: 100%;
+          margin: 0px 0px 10px 0px;
+          padding: 0px;
         }
         .event-thumbnail {
-          margin-bottom: 10px;
-          max-width: 400px;
+          max-width: 100%;
+          max-height: 400px;
+          margin: 0px 0px 10px 0px;
+          padding: 0px;
         }
         .event-links {
+          width: 100%;
+          margin: 0px;
+          padding: 0px;
           list-style-type: none;
           line-height: 20px;
-          max-width: 400px;
-          padding-left: 20px;
           font-family: monospace;
         }
       </style>
@@ -62,7 +80,7 @@ function renderEvents (events) {
 function renderEvent (event) {
   return (`
     <li id="${event.id}" class="event">
-      ${renderEventHeader(event)}
+      ${renderEventInfo(event)}
       ${renderEventTitle(event)}
       ${renderEventThumbnail(event)}
       ${renderEventLinks(event.links)}
@@ -70,18 +88,18 @@ function renderEvent (event) {
   `);
 }
 
-function renderEventHeader (event) {
+function renderEventInfo (event) {
   const dayMonth = format(parse(event.date, "dd/MM/yy", new Date()), "dd.MM");
   const weekday = format(parse(event.date, "dd/MM/yy", new Date()), "EEEE");
   const venueMetadata = getVenueMetadata(event.venue);
   return (`
-    <h3>
-      ${[
+    <h3 class="event-info">
+      <em>${[
         dayMonth,
         weekday,
         renderVenueLink(venueMetadata),
         venueMetadata.neighbourhood,
-      ].join(" • ")}
+      ].join(" • ")}</em>
     </h3>
   `);
 }
@@ -148,7 +166,7 @@ function getVenueMetadata (venue) {
 
 function renderEventTitle (event) {
   return (`
-      <h2>
+      <h2 class="event-title">
         <a href="${event.url}" target="_blank" rel="noreferrer">
           ${event.title}
         </a>
