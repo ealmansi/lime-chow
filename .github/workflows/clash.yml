@@ -1,0 +1,13 @@
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '35 20 * * *'
+
+permissions:
+  id-token: write
+
+jobs:
+  clash:
+    uses: ./.github/workflows/run_spider.yml
+    with:
+      spider: clash

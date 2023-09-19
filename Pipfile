@@ -23,3 +23,4 @@ peppi_guggenheim = "scrapy crawl --overwrite-output out/peppi_guggenheim.json pe
 loophole = "scrapy crawl --overwrite-output out/loophole.json loophole"
 arkaoda = "scrapy crawl --overwrite-output out/arkaoda.json arkaoda"
 comedy_cafe_berlin = "scrapy crawl --overwrite-output out/comedy_cafe_berlin.json comedy_cafe_berlin"
+clash = "scrapy crawl --overwrite-output out/clash.json clash"

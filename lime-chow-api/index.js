@@ -132,6 +132,11 @@ function getVenueMetadata (venue) {
       neighbourhood: "Neukölln",
       link: "https://maps.app.goo.gl/LyxvV46EjAeecmiq7",
     },
+    ["clash"]: {
+      name: "Clash",
+      neighbourhood: "Kreuzberg",
+      link: "https://maps.app.goo.gl/hQHUap2MsdWXDFdp7",
+    },
   }[venue];
 }
 
