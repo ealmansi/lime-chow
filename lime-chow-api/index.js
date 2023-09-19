@@ -1,4 +1,12 @@
+const express = require("express");
 const serverless = require("serverless-http");
+const compareAsc = require('date-fns/compareAsc');
+const format = require('date-fns/format');
+const isBefore = require('date-fns/isBefore');
+const parse = require('date-fns/parse');
+const startOfDay = require('date-fns/startOfDay')
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBDocumentClient, ScanCommand } = require("@aws-sdk/lib-dynamodb");
 
 /**
  * 
@@ -11,20 +19,27 @@ function renderPage (events) {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Chow</title>
       <style>
-        img {
-          max-width: 400px;
-        }
-        h4 {
-          margin-bottom: 5px;
+        .events {
+          list-style-type: none;
         }
         h3 {
+          margin-top: 30px;
+          margin-bottom: 5px;
+        }
+        h2 {
           margin-top: 5px;
+          max-width: 400px;
         }
         .event-thumbnail {
           margin-bottom: 10px;
+          max-width: 400px;
         }
         .event-links {
           list-style-type: none;
+          line-height: 20px;
+          max-width: 400px;
+          padding-left: 20px;
+          font-family: monospace;
         }
       </style>
     </head>
@@ -37,35 +52,100 @@ function renderPage (events) {
 
 function renderEvents (events) {
   return (`
-    <ul>
+    <ul class="events">
       ${events.map(renderEvent).join("\n")}
     </ul>
   `);
 }
 
 function renderEvent (event) {
-  const format = require('date-fns/format');
-  const parse = require('date-fns/parse');
-  const date = parse(event.date, "dd/MM/yy", new Date());
-  const venueMetadata = getVenueMetadata(event.venue);
   return (`
     <li id="${event.id}" class="event">
-      <h4>
-        ${[
-          event.date,
-          format(date, "EEEE"),
-          ...(venueMetadata ? [venueMetadata.name] : []),
-          ...(venueMetadata ? [venueMetadata.neighbourhood] : []),
-        ].join(" - ")}
-      </h4>
-      <h3>
+      ${renderEventHeader(event)}
+      ${renderEventTitle(event)}
+      ${renderEventThumbnail(event)}
+      ${renderEventLinks(event.links)}
+    </li>
+  `);
+}
+
+function renderEventHeader (event) {
+  const weekday = format(parse(event.date, "dd/MM/yy", new Date()), "EEEE");
+  const venueMetadata = getVenueMetadata(event.venue);
+  return (`
+    <h3>
+      ${[
+        event.date,
+        weekday,
+        renderVenueLink(venueMetadata),
+        venueMetadata.neighbourhood,
+      ].join(" • ")}
+    </h3>
+  `);
+}
+
+function renderVenueLink (venueMetadata) {
+  return (`
+    <a
+      href="${venueMetadata.link}"
+      target="_blank"
+      rel="noreferrer"
+    >${venueMetadata.name}</a>
+  `);
+}
+
+function getVenueMetadata (venue) {
+  return {
+    ["madame_claude"]: {
+      name: "Madame Claude",
+      neighbourhood: "Kreuzberg",
+      link: "https://maps.app.goo.gl/6Swi31q6NDWCdpQZ7",
+    },
+    ["schokoladen"]: {
+      name: "Schokoladen",
+      neighbourhood: "Mitte",
+      link: "https://maps.app.goo.gl/6Swi31q6NDWCdpQZ7",
+    },
+    ["wild_at_heart"]: {
+      name: "Wild at Heart",
+      neighbourhood: "Kreuzberg",
+      link: "https://maps.app.goo.gl/6Swi31q6NDWCdpQZ7",
+    },
+    ["peppi_guggenheim"]: {
+      name: "Peppi Guggenheim",
+      neighbourhood: "Neukölln",
+      link: "https://maps.app.goo.gl/6Swi31q6NDWCdpQZ7",
+    },
+    ["loophole"]: {
+      name: "Loophole",
+      neighbourhood: "Neukölln",
+      link: "https://maps.app.goo.gl/6Swi31q6NDWCdpQZ7",
+    },
+    ["arkaoda"]: {
+      name: "Arkaoda",
+      neighbourhood: "Neukölln",
+      link: "https://maps.app.goo.gl/6Swi31q6NDWCdpQZ7",
+    },
+  }[venue];
+}
+
+function renderEventTitle (event) {
+  return (`
+      <h2>
         <a href="${event.url}" target="_blank" rel="noreferrer">
           ${event.title}
         </a>
-      </h3>
-      <img class="event-thumbnail" src="${event.thumbnail_url}" alt="${event.title}" />
-      ${renderEventLinks(event.links ?? [])}
-    </li>
+      </h2>
+  `);
+}
+
+function renderEventThumbnail (event) {
+  return (`
+    <img
+      class="event-thumbnail"
+      src="${event.thumbnail_url}"
+      alt="${event.title}"
+    />
   `);
 }
 
@@ -82,40 +162,18 @@ function renderEventLinks (links) {
 }
 
 function renderEventLink (link) {
+  const maxLength = 50;
+  const linkDisplay =
+    link.length > maxLength
+      ? `${link.slice(0, maxLength - '...'.length)}...`
+      : link;
   return (`
     <li>
-      <a href="${link}" target="_blank" rel="noreferrer">${link.slice(0, 60)}</a>
+      <a href="${link}" target="_blank" rel="noreferrer">
+        ${linkDisplay}
+      </a>
     </li>
   `);
-}
-
-function getVenueMetadata (venue) {
-  return {
-    ["madame_claude"]: {
-      name: "Madame Claude",
-      neighbourhood: "Kreuzberg",
-    },
-    ["schokoladen"]: {
-      name: "Schokoladen",
-      neighbourhood: "Mitte",
-    },
-    ["wild_at_heart"]: {
-      name: "Wild at Heart",
-      neighbourhood: "Kreuzberg",
-    },
-    ["peppi_guggenheim"]: {
-      name: "Peppi Guggenheim",
-      neighbourhood: "Neukölln",
-    },
-    ["loophole"]: {
-      name: "Loophole",
-      neighbourhood: "Neukölln",
-    },
-    ["arkaoda"]: {
-      name: "Arkaoda",
-      neighbourhood: "Neukölln",
-    },
-  }[venue];
 }
 
 function compareEventLinks (link1, link2) {
@@ -146,13 +204,6 @@ function getEventLinkPriority (link) {
  * 
  */
 async function getEvents () {
-  const {
-    DynamoDBClient,
-  } = require("@aws-sdk/client-dynamodb");
-  const {
-    DynamoDBDocumentClient,
-    ScanCommand,
-  } = require("@aws-sdk/lib-dynamodb");
   const client = DynamoDBDocumentClient.from(
     new DynamoDBClient(),
   );
@@ -171,17 +222,12 @@ function compareEvents (event1, event2) {
   if (event1.date === event2.date) {
     return event1.id.localeCompare(event2.id);
   }
-  const parse = require('date-fns/parse');
-  const compareAsc = require('date-fns/compareAsc');
   const date1 = parse(event1.date, "dd/MM/yy", new Date());
   const date2 = parse(event2.date, "dd/MM/yy", new Date());
   return compareAsc(date1, date2);
 }
 
 function isUpcoming (event) {
-  const parse = require('date-fns/parse');
-  const isBefore = require('date-fns/isBefore');
-  const startOfDay = require('date-fns/startOfDay')
   const date = parse(event.date, "dd/MM/yy", new Date());
   return !isBefore(startOfDay(date), startOfDay(new Date()));
 }
@@ -190,7 +236,6 @@ function isUpcoming (event) {
  * 
  */
 function buildApp () {
-  const express = require("express");
   const app = express();
   app.use(express.json());
   app.get("/", async function (_req, res) {
