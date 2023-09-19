@@ -21,6 +21,7 @@ function renderPage (events) {
       <style>
         .events {
           list-style-type: none;
+          padding-left: 10px;
         }
         h3 {
           margin-top: 30px;
@@ -99,22 +100,22 @@ function getVenueMetadata (venue) {
     ["madame_claude"]: {
       name: "Madame Claude",
       neighbourhood: "Kreuzberg",
-      link: "https://maps.app.goo.gl/6Swi31q6NDWCdpQZ7",
+      link: "https://maps.app.goo.gl/9yoXrFGuJcKgoE928",
     },
     ["schokoladen"]: {
       name: "Schokoladen",
       neighbourhood: "Mitte",
-      link: "https://maps.app.goo.gl/6Swi31q6NDWCdpQZ7",
+      link: "https://maps.app.goo.gl/nfDnm9GVBjXv3bm37",
     },
     ["wild_at_heart"]: {
       name: "Wild at Heart",
       neighbourhood: "Kreuzberg",
-      link: "https://maps.app.goo.gl/6Swi31q6NDWCdpQZ7",
+      link: "https://maps.app.goo.gl/ZAaDdtSDabCuxbpn8",
     },
     ["peppi_guggenheim"]: {
       name: "Peppi Guggenheim",
       neighbourhood: "Neukölln",
-      link: "https://maps.app.goo.gl/6Swi31q6NDWCdpQZ7",
+      link: "https://maps.app.goo.gl/Kw3fqNnTjFdbYMu49",
     },
     ["loophole"]: {
       name: "Loophole",
@@ -124,7 +125,7 @@ function getVenueMetadata (venue) {
     ["arkaoda"]: {
       name: "Arkaoda",
       neighbourhood: "Neukölln",
-      link: "https://maps.app.goo.gl/6Swi31q6NDWCdpQZ7",
+      link: "https://maps.app.goo.gl/x4LVYefPDuPfSkBz7",
     },
   }[venue];
 }
