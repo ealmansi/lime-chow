@@ -47,10 +47,15 @@ function renderPage (events) {
           padding: 0px;
         }
         .event-thumbnail {
-          max-width: 100%;
-          max-height: 400px;
+          width: 100%;
           margin: 0px 0px 10px 0px;
           padding: 0px;
+          text-align: center;
+          background: #ffd7ef;
+        }
+        .event-thumbnail img {
+          max-width: 100%;
+          max-height: 500px;
         }
         .event-links {
           width: 100%;
@@ -176,12 +181,13 @@ function renderEventTitle (event) {
 
 function renderEventThumbnail (event) {
   return (`
-    <img
-      class="event-thumbnail"
-      src="${event.thumbnail_url}"
-      alt="${event.title}"
-      loading="lazy"
-    />
+    <div class="event-thumbnail">
+      <img
+        src="${event.thumbnail_url}"
+        alt="${event.title}"
+        loading="lazy"
+      />
+    </div>
   `);
 }
 
