@@ -203,11 +203,8 @@ function getEventLinkPriority (link) {
 /**
  * 
  */
-async function getEvents () {
-  const client = DynamoDBDocumentClient.from(
-    new DynamoDBClient(),
-  );
-  const { Items: events } = await client.send(
+async function getEvents (documentClient) {
+  const { Items: events } = await documentClient.send(
     new ScanCommand({
       TableName: "events",
     }),
@@ -236,10 +233,13 @@ function isUpcoming (event) {
  * 
  */
 function buildApp () {
+  const documentClient = DynamoDBDocumentClient.from(
+    new DynamoDBClient(),
+  );
   const app = express();
   app.use(express.json());
   app.get("/", async function (_req, res) {
-    const events = await getEvents();
+    const events = await getEvents(documentClient);
     res.send(renderPage(events));
   });
   app.use((_req, res, _next) => {
