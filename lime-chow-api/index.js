@@ -26,7 +26,7 @@ function renderPage (events) {
           font-family: sans-serif;
         }
         .events {
-          width: min(400px, 100%);
+          width: min(380px, 100% - 20px);
           margin: 0px 0px 20px 0px;
           padding: 10px;
           list-style-type: none;
