@@ -71,12 +71,13 @@ function renderEvent (event) {
 }
 
 function renderEventHeader (event) {
+  const dayMonth = format(parse(event.date, "dd/MM/yy", new Date()), "dd.MM");
   const weekday = format(parse(event.date, "dd/MM/yy", new Date()), "EEEE");
   const venueMetadata = getVenueMetadata(event.venue);
   return (`
     <h3>
       ${[
-        event.date,
+        dayMonth,
         weekday,
         renderVenueLink(venueMetadata),
         venueMetadata.neighbourhood,
@@ -136,6 +137,11 @@ function getVenueMetadata (venue) {
       name: "Clash",
       neighbourhood: "Kreuzberg",
       link: "https://maps.app.goo.gl/hQHUap2MsdWXDFdp7",
+    },
+    ["sameheads"]: {
+      name: "Sameheads",
+      neighbourhood: "Neukölln",
+      link: "https://maps.app.goo.gl/9L4RMbxraSQ6jkyL8",
     },
   }[venue];
 }
