@@ -162,6 +162,7 @@ function renderEventThumbnail (event) {
       class="event-thumbnail"
       src="${event.thumbnail_url}"
       alt="${event.title}"
+      loading="lazy"
     />
   `);
 }
