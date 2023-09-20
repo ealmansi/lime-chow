@@ -1,18 +1,21 @@
 const express = require("express");
 const serverless = require("serverless-http");
 const parseISO = require("date-fns/parseISO");
-const compareAsc = require('date-fns/compareAsc');
-const format = require('date-fns/format');
-const isBefore = require('date-fns/isBefore');
-const startOfDay = require('date-fns/startOfDay')
+const compareAsc = require("date-fns/compareAsc");
+const format = require("date-fns/format");
+const isBefore = require("date-fns/isBefore");
+const startOfDay = require("date-fns/startOfDay");
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { DynamoDBDocumentClient, ScanCommand } = require("@aws-sdk/lib-dynamodb");
+const {
+  DynamoDBDocumentClient,
+  ScanCommand,
+} = require("@aws-sdk/lib-dynamodb");
 
 /**
- * 
+ *
  */
-function renderPage (events) {
-  return (`
+function renderPage(events) {
+  return `
     <html lang="en">
     <head>
       <meta charset="UTF-8">
@@ -71,51 +74,46 @@ function renderPage (events) {
       ${or(() => renderEvents(events), "Something went wrong.")}
     </body>
     </html>
-  `);
+  `;
 }
 
-function renderEvents (events) {
-  return (`
+function renderEvents(events) {
+  return `
     <ul class="events">
-      ${
-        events
-          .map(event => or(() => renderEvent(event), undefined))
-          .filter(html => html !== undefined)
-          .join("<hr />")
-      }
+      ${events
+        .map((event) => or(() => renderEvent(event), undefined))
+        .filter((html) => html !== undefined)
+        .join("<hr />")}
     </ul>
-  `);
+  `;
 }
 
-function renderEvent (event) {
-  return (`
+function renderEvent(event) {
+  return `
     <li id="${event.id}" class="event">
       ${renderEventInfo(event)}
       ${renderEventTitle(event)}
       ${or(() => renderEventThumbnail(event), "")}
       ${or(() => renderEventLinks(event), "")}
     </li>
-  `);
+  `;
 }
 
-function renderEventInfo (event) {
+function renderEventInfo(event) {
   const datetime = event.starts_at
     ? parseISO(event.starts_at)
     : parseISO(event.starts_on);
   const date = format(datetime, "dd.MM");
   const weekday = format(datetime, "EEEE");
-  const intl = new Intl.DateTimeFormat(
-    'en-US',
-    {
-      timeZone: "Europe/Berlin",
-      hour: "numeric",
-    },
-  );
+  const intl = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/Berlin",
+    hour: "numeric",
+  });
   const time = event.starts_at
     ? intl.format(datetime).toLowerCase().replace(" ", "")
     : undefined;
   const venueMetadata = getVenueMetadata(event.venue);
-  return (`
+  return `
     <h3 class="event-info">
       <em>${[
         date,
@@ -124,31 +122,31 @@ function renderEventInfo (event) {
         venueMetadata.neighbourhood,
       ].join(" • ")}</em>
     </h3>
-  `);
+  `;
 }
 
-function renderVenueLink (venueMetadata) {
-  return (`
+function renderVenueLink(venueMetadata) {
+  return `
     <a
       href="${venueMetadata.link}"
       target="_blank"
       rel="noreferrer"
     >${venueMetadata.name}</a>
-  `);
+  `;
 }
 
-function renderEventTitle (event) {
-  return (`
+function renderEventTitle(event) {
+  return `
       <h2 class="event-title">
         <a href="${event.url}" target="_blank" rel="noreferrer">
           ${event.title}
         </a>
       </h2>
-  `);
+  `;
 }
 
-function renderEventThumbnail (event) {
-  return (`
+function renderEventThumbnail(event) {
+  return `
     <div class="event-thumbnail">
       <img
         src="${event.thumbnail_url}"
@@ -156,51 +154,48 @@ function renderEventThumbnail (event) {
         loading="lazy"
       />
     </div>
-  `);
+  `;
 }
 
-function renderEventLinks (event) {
-  const topLinks = event.links
-    .slice()
-    .sort(compareEventLinks)
-    .slice(0, 4);
-  return (`
+function renderEventLinks(event) {
+  const topLinks = event.links.slice().sort(compareEventLinks).slice(0, 4);
+  return `
     <ul class="event-links">
       ${topLinks.map(renderEventLink).join("\n")}
     </ul>
-  `);
+  `;
 }
 
-function renderEventLink (link) {
+function renderEventLink(link) {
   const maxLength = 50;
   const linkDisplay =
     link.length > maxLength
-      ? `${link.slice(0, maxLength - '...'.length)}...`
+      ? `${link.slice(0, maxLength - "...".length)}...`
       : link;
-  return (`
+  return `
     <li>
       <a href="${link}" target="_blank" rel="noreferrer">
         ${linkDisplay}
       </a>
     </li>
-  `);
+  `;
 }
 
-function compareEventLinks (link1, link2) {
+function compareEventLinks(link1, link2) {
   return getEventLinkPriority(link1) - getEventLinkPriority(link2);
 }
 
-function getEventLinkPriority (link) {
+function getEventLinkPriority(link) {
   const priorities = [
-    [100, link => link.includes("linktr.ee")],
-    [100, link => link.includes("bandcamp.com")],
-    [100, link => link.includes("soundcloud.com")],
-    [100, link => link.includes("mixcloud.com")],
-    [100, link => link.includes("spotify.com")],
-    [200, link => link.includes("youtube.com")],
-    [300, link => link.includes("instagram.com")],
-    [1000, link => link.includes("facebook.com/events")],
-    [400, link => link.includes("facebook.com")],
+    [100, (link) => link.includes("linktr.ee")],
+    [100, (link) => link.includes("bandcamp.com")],
+    [100, (link) => link.includes("soundcloud.com")],
+    [100, (link) => link.includes("mixcloud.com")],
+    [100, (link) => link.includes("spotify.com")],
+    [200, (link) => link.includes("youtube.com")],
+    [300, (link) => link.includes("instagram.com")],
+    [1000, (link) => link.includes("facebook.com/events")],
+    [400, (link) => link.includes("facebook.com")],
     [900, () => true],
   ];
   for (const [priority, matcher] of priorities) {
@@ -210,7 +205,7 @@ function getEventLinkPriority (link) {
   }
 }
 
-function getVenueMetadata (venue) {
+function getVenueMetadata(venue) {
   return {
     ["madame_claude"]: {
       name: "Madame Claude",
@@ -260,7 +255,7 @@ function getVenueMetadata (venue) {
   }[venue];
 }
 
-function or (thunk, value) {
+function or(thunk, value) {
   try {
     return thunk();
   } catch (err) {
@@ -270,9 +265,9 @@ function or (thunk, value) {
 }
 
 /**
- * 
+ *
  */
-async function getEvents (documentClient) {
+async function getEvents(documentClient) {
   const { Items: events } = await documentClient.send(
     new ScanCommand({
       TableName: "events",
@@ -281,7 +276,7 @@ async function getEvents (documentClient) {
   return events.sort(compareEvents).filter(isUpcoming);
 }
 
-function compareEvents (event1, event2) {
+function compareEvents(event1, event2) {
   const datetime1 = event1.starts_at
     ? parseISO(event1.starts_at)
     : parseISO(event1.starts_on);
@@ -295,18 +290,16 @@ function compareEvents (event1, event2) {
   return event1.id.localeCompare(event2.id);
 }
 
-function isUpcoming (event) {
+function isUpcoming(event) {
   const date = parseISO(event.starts_on);
   return !isBefore(date, startOfDay(new Date()));
 }
 
 /**
- * 
+ *
  */
-function buildApp () {
-  const documentClient = DynamoDBDocumentClient.from(
-    new DynamoDBClient(),
-  );
+function buildApp() {
+  const documentClient = DynamoDBDocumentClient.from(new DynamoDBClient());
   const app = express();
   app.use(express.json());
   app.get("/", async function (_req, res) {
@@ -320,6 +313,6 @@ function buildApp () {
 }
 
 /**
- * 
+ *
  */
 module.exports.handler = serverless(buildApp());
