@@ -40,7 +40,7 @@ class ClashSpider(scrapy.Spider):
         time = "".join(event.css(".time::text").extract())
         starts_at = date.strip() + " " + re.sub(r"\t+", " ", time).strip()
         starts_at = datetime.strptime(starts_at, "%d.%m.%y %a %H:%M")
-        starts_at = starts_at.astimezone(pytz.timezone("Europe/Berlin"))
+        starts_at = pytz.timezone("Europe/Berlin").localize(starts_at)
         starts_on = str(starts_at.date())
         starts_at = starts_at.isoformat()
         return starts_on, starts_at
