@@ -46,7 +46,7 @@ class ArkaodaSpider(scrapy.Spider):
         date = response.css(".excerpt div b::text").extract_first()
         assert date is not None
         starts_on = datetime.strptime(date.strip(), "%d / %m / %Y")
-        starts_on = starts_on.astimezone(pytz.timezone("Europe/Berlin"))
+        starts_on = pytz.timezone("Europe/Berlin").localize(starts_on)
         starts_on = str(starts_on.date())
         return starts_on
 

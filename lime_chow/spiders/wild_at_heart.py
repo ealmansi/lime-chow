@@ -83,13 +83,13 @@ class WildAtHeartSpider(scrapy.Spider):
         ).extract()
         starts_on = datetime.strptime(date_without_year.strip(), "%d.%m.")
         starts_on = starts_on.replace(year=datetime.now().year)
-        starts_on = starts_on.astimezone(pytz.timezone("Europe/Berlin"))
+        starts_on = pytz.timezone("Europe/Berlin").localize(starts_on)
         starts_on = self.guess_year(starts_on)
         starts_on = str(starts_on.date())
         return starts_on
 
     def guess_year(self, starts_at):
-        now = datetime.now().astimezone(pytz.timezone("Europe/Berlin"))
+        now = pytz.timezone("Europe/Berlin").localize(datetime.now())
         starts_at_prev = starts_at.replace(year=now.year - 1)
         starts_at_curr = starts_at.replace(year=now.year)
         starts_at_next = starts_at.replace(year=now.year + 1)

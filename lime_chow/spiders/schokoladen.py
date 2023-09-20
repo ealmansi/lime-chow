@@ -92,14 +92,14 @@ class SchokoladenSpider(scrapy.Spider):
         starts_at = date_without_year.strip() + " " + time.strip()
         starts_at = datetime.strptime(starts_at, "%d.%m. %H:%M")
         starts_at = starts_at.replace(year=datetime.now().year)
-        starts_at = starts_at.astimezone(pytz.timezone("Europe/Berlin"))
+        starts_at = pytz.timezone("Europe/Berlin").localize(starts_at)
         starts_at = self.guess_year(starts_at)
         starts_on = str(starts_at.date())
         starts_at = starts_at.isoformat()
         return starts_on, starts_at
 
     def guess_year(self, starts_at):
-        now = datetime.now().astimezone(pytz.timezone("Europe/Berlin"))
+        now = pytz.timezone("Europe/Berlin").localize(datetime.now())
         starts_at_prev = starts_at.replace(year=now.year - 1)
         starts_at_curr = starts_at.replace(year=now.year)
         starts_at_next = starts_at.replace(year=now.year + 1)

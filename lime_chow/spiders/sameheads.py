@@ -98,7 +98,7 @@ class SameheadsSpider(scrapy.Spider):
         for event in events:
             venue = self.name
             starts_at = datetime.fromisoformat(event["startTime"])
-            starts_at = starts_at.astimezone(pytz.timezone("Europe/Berlin"))
+            starts_at = pytz.timezone("Europe/Berlin").localize(starts_at)
             starts_on = str(starts_at.date())
             starts_at = starts_at.isoformat()
             title = event["title"]

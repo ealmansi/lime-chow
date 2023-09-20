@@ -51,7 +51,7 @@ class PeppiGuggenheimSpider(scrapy.Spider):
         assert time is not None
         starts_at = date.strip() + " " + time.strip()[: len("hh:mm")]
         starts_at = datetime.strptime(starts_at, "%Y-%m-%d %H:%M")
-        starts_at = starts_at.astimezone(pytz.timezone("Europe/Berlin"))
+        starts_at = pytz.timezone("Europe/Berlin").localize(starts_at)
         starts_on = str(starts_at.date())
         starts_at = starts_at.isoformat()
         return starts_on, starts_at
