@@ -1,7 +1,11 @@
-import scrapy
-import validators
+from datetime import datetime
 from lime_chow.items import EventItem
 from lime_chow.utils import EventUtils
+import pytz
+import re
+import scrapy
+import validators
+
 
 class ClashSpider(scrapy.Spider):
     name = "clash"
@@ -11,27 +15,37 @@ class ClashSpider(scrapy.Spider):
     def parse(self, response):
         for event in response.css(".gigs-container .item"):
             venue = self.name
-            date = self.get_event_date(event)
-            title = event.css(".gig-title::text").extract_first().strip()
+            starts_on, starts_at = self.parse_starts_on(event)
+            title = event.css(".gig-title::text").extract_first()
+            assert title is not None
+            title = title.strip()
             url = response.url
             thumbnail_url = event.css(".flyer img::attr(src)").extract_first()
-            links = self.get_event_links(event)
+            links = self.parse_links(event)
             yield EventItem(
-                id = EventUtils.build_id(venue, date, title),
-                extracted_at = EventUtils.get_current_datetime(),
-                venue = venue,
-                date = date,
-                title = title,
-                url = url,
-                thumbnail_url = thumbnail_url,
-                links = links,
+                id=EventUtils.build_event_id(venue, starts_on, title),
+                venue=venue,
+                starts_on=starts_on,
+                starts_at=starts_at,
+                title=title,
+                url=url,
+                thumbnail_url=thumbnail_url,
+                links=links,
+                extracted_at=datetime.now().isoformat(),
             )
 
-    def get_event_date(self, event):
+    def parse_starts_on(self, event):
         date = event.css(".dateTwo::text").extract_first()
-        return date.replace(".", "/")
+        assert date is not None
+        time = "".join(event.css(".time::text").extract())
+        starts_at = date.strip() + " " + re.sub(r"\t+", " ", time).strip()
+        starts_at = datetime.strptime(starts_at, "%d.%m.%y %a %H:%M")
+        starts_at = starts_at.astimezone(pytz.timezone("Europe/Berlin"))
+        starts_on = str(starts_at.date())
+        starts_at = starts_at.isoformat()
+        return starts_on, starts_at
 
-    def get_event_links(self, event):
+    def parse_links(self, event):
         links = event.css(".info-extra a::attr(href)").extract()
         links = list(filter(validators.url, links))
         links = links[:10]

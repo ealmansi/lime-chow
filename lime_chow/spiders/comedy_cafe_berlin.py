@@ -1,7 +1,9 @@
-import scrapy
-from dateparser import parse as parse_date
+from datetime import datetime
 from lime_chow.items import EventItem
 from lime_chow.utils import EventUtils
+import pytz
+import scrapy
+
 
 class ComedyCafeBerlinSpider(scrapy.Spider):
     name = "comedy_cafe_berlin"
@@ -16,27 +18,38 @@ class ComedyCafeBerlinSpider(scrapy.Spider):
 
     def parse_event(self, response):
         venue = self.name
-        date = self.get_event_date(response)
-        title = response.css(
-            ".tribe-events-single-event-title::text"
-        ).extract_first().strip()
+        starts_on, starts_at = self.parse_starts_on(response)
+        title = (
+            response.css(".tribe-events-single-event-title::text")
+            .extract_first()
+            .strip()
+        )
         url = response.url
-        thumbnail_url = response.css(
-            ".tribe-events-event-image img::attr(src)"
-        ).extract_first().strip()
+        thumbnail_url = (
+            response.css(".tribe-events-event-image img::attr(src)")
+            .extract_first()
+            .strip()
+        )
         yield EventItem(
-            id = EventUtils.build_id(venue, date, title),
-            extracted_at = EventUtils.get_current_datetime(),
-            venue = venue,
-            date = date,
-            title = title,
-            url = url,
-            thumbnail_url = thumbnail_url,
-            links = [],
+            id=EventUtils.build_event_id(venue, starts_on, title),
+            venue=venue,
+            starts_on=starts_on,
+            starts_at=starts_at,
+            title=title,
+            url=url,
+            thumbnail_url=thumbnail_url,
+            links=[],
+            extracted_at=datetime.now().isoformat(),
         )
 
-    def get_event_date(self, response):
-        text = response.css(
-            ".tribe-events-schedule__date::text"
-        ).extract_first().strip()
-        return parse_date(text).strftime("%d/%m/%y")
+    def parse_starts_on(self, response):
+        date = response.css(".tribe-events-schedule__date--start::text").extract_first()
+        assert date is not None
+        time = response.css(".tribe-events-schedule__time--start::text").extract_first()
+        assert time is not None
+        starts_at = date.strip() + " " + time.strip()
+        starts_at = datetime.strptime(starts_at, "%A, %B %d, %Y %I:%M%p")
+        starts_at = starts_at.astimezone(pytz.timezone("Europe/Berlin"))
+        starts_on = str(starts_at.date())
+        starts_at = starts_at.isoformat()
+        return starts_on, starts_at

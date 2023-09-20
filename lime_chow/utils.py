@@ -1,16 +1,12 @@
 import re
-from datetime import datetime
+
 
 class EventUtils:
-    separator = "-"
-
-    def build_id(venue, date, title):
-        id = EventUtils.separator.join([venue, date, title]).lower()
+    def build_event_id(venue, starts_on, title):
+        sep = "-"
+        id = sep.join([venue, starts_on, title]).lower()
         id = id.replace("ausverkauft", "")
-        id = re.sub("[^a-z0-9]+", EventUtils.separator, id)
+        id = re.sub("[^a-z0-9]+", sep, id)
         id = id[:80]
-        id = id.strip(EventUtils.separator)
+        id = id.strip(sep)
         return id
-
-    def get_current_datetime():
-        return datetime.now().isoformat()

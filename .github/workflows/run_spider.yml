@@ -26,4 +26,4 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       - run: pip install pipenv
       - run: pipenv install
-      - run: pipenv run scrapy crawl ${{ inputs.spider }}
+      - run: pipenv run scrapy crawl ${{ inputs.spider }} --set DYNAMO_DB_PIPELINE_ENABLED=true

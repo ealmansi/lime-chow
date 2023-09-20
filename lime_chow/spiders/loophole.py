@@ -1,51 +1,52 @@
-import scrapy
-import validators
+from datetime import datetime
 from lime_chow.items import EventItem
 from lime_chow.utils import EventUtils
+import pytz
+import scrapy
+import validators
+
 
 class LoopholeSpider(scrapy.Spider):
     name = "loophole"
     allowed_domains = ["loophole.berlin"]
-    start_urls = ["http://loophole.berlin"]
+    start_urls = ["https://loophole.berlin"]
 
     def parse(self, response):
-        for event_url in response.css(
-            ".excerpt-title a::attr(href)"
-        ).extract():
+        for event_url in response.css(".excerpt-title a::attr(href)").extract():
             yield scrapy.Request(url=event_url, callback=self.parse_event)
 
     def parse_event(self, response):
         venue = self.name
-        date = self.get_event_date(response)
-        title = response.css(
-            ".entry-title::text"
-        ).extract_first().strip()
+        starts_on = self.parse_starts_on(response)
+        title = response.css(".entry-title::text").extract_first()
+        assert title is not None
+        title = title.strip()
         url = response.url
-        thumbnail_url = response.css(
-            ".featured-image::attr(style)"
-        ).extract_first().strip()
-        thumbnail_url = thumbnail_url[len("background-image: url("):-len(")")]
-        links = self.get_event_links(response)
+        thumbnail_url = response.css(".featured-image::attr(style)").extract_first()
+        assert thumbnail_url is not None
+        thumbnail_url = thumbnail_url.strip()[len("background-image: url(") : -len(")")]
+        links = self.parse_links(response)
         yield EventItem(
-            id = EventUtils.build_id(venue, date, title),
-            extracted_at = EventUtils.get_current_datetime(),
-            venue = venue,
-            date = date,
-            title = title,
-            url = url,
-            thumbnail_url = thumbnail_url,
-            links = links,
+            id=EventUtils.build_event_id(venue, starts_on, title),
+            venue=venue,
+            starts_on=starts_on,
+            title=title,
+            url=url,
+            thumbnail_url=thumbnail_url,
+            links=links,
+            extracted_at=datetime.now().isoformat(),
         )
 
-    def get_event_date(self, event):
-        date_long = event.css("span.date::text").extract_first()
-        [day, month, year] = date_long.split("/")
-        return "/".join([day, month, year[2:]])
+    def parse_starts_on(self, event):
+        date = event.css(".date::text").extract_first()
+        assert date is not None
+        starts_on = datetime.strptime(date.strip(), "%d/%m/%Y")
+        starts_on = starts_on.astimezone(pytz.timezone("Europe/Berlin"))
+        starts_on = str(starts_on.date())
+        return starts_on
 
-    def get_event_links(self, response):
-        links = response.css(
-            ".entry-content a::attr(href)"
-        ).extract()
+    def parse_links(self, response):
+        links = response.css(".entry-content a::attr(href)").extract()
         links = list(filter(validators.url, links))
         links = links[:10]
         return links

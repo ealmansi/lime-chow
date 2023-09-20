@@ -1,8 +1,10 @@
-import scrapy
-import json
-from dateparser import parse as parse_date
+from datetime import datetime
 from lime_chow.items import EventItem
 from lime_chow.utils import EventUtils
+import json
+import pytz
+import scrapy
+
 
 class SameheadsSpider(scrapy.Spider):
     name = "sameheads"
@@ -17,37 +19,38 @@ class SameheadsSpider(scrapy.Spider):
                     "accept-language": "en-US,en;q=0.9",
                     "content-type": "application/json",
                     "ra-content-language": "en",
-                    "sec-ch-ua": "\"Chromium\";v=\"116\", \"Not)A;Brand\";v=\"24\", \"Brave\";v=\"116\"",
+                    "sec-ch-ua": '"Chromium";v="116", "Not)A;Brand";v="24", "Brave";v="116"',
                     "sec-ch-ua-mobile": "?0",
-                    "sec-ch-ua-model": "\"\"",
-                    "sec-ch-ua-platform": "\"Linux\"",
+                    "sec-ch-ua-model": '""',
+                    "sec-ch-ua-platform": '"Linux"',
                     "sec-fetch-dest": "empty",
                     "sec-fetch-mode": "cors",
                     "sec-fetch-site": "same-origin",
                     "sec-gpc": "1",
                     "referer": "https://ra.co/clubs/34420/past-events",
-                    "referrer-policy": "strict-origin-when-cross-origin"
+                    "referrer-policy": "strict-origin-when-cross-origin",
                 },
-                body=json.dumps({
-                  "operationName": 'GET_DEFAULT_EVENTS_LISTING',
-                  "variables": {
-                      "indices": ['EVENT'],
-                      "pageSize": 20,
-                      "page": 1,
-                      "filters": [
-                          {
-                            "type": 'CLUB',
-                            "value": '34420',
-                          },
-                          {
-                            "type": 'DATERANGE',
-                            "value": '{"gte":"2023-09-19T15:55:00.000Z"}',
-                          },
-                      ],
-                      "sortOrder": 'ASCENDING',
-                      "sortField": 'DATE',
-                  },
-                  "query": '''
+                body=json.dumps(
+                    {
+                        "operationName": "GET_DEFAULT_EVENTS_LISTING",
+                        "variables": {
+                            "indices": ["EVENT"],
+                            "pageSize": 20,
+                            "page": 1,
+                            "filters": [
+                                {
+                                    "type": "CLUB",
+                                    "value": "34420",
+                                },
+                                {
+                                    "type": "DATERANGE",
+                                    "value": '{"gte":"2023-09-19T15:55:00.000Z"}',
+                                },
+                            ],
+                            "sortOrder": "ASCENDING",
+                            "sortField": "DATE",
+                        },
+                        "query": """
                       query GET_DEFAULT_EVENTS_LISTING(
                         $indices: [IndexType!],
                         $filters: [FilterInput],
@@ -66,27 +69,25 @@ class SameheadsSpider(scrapy.Spider):
                           sortOrder: $sortOrder
                         ) {
                           data {
-                            ...eventFragment
+                            ... on Event {
+                              id
+                              title
+                              date
+                              startTime
+                              contentUrl
+                              images {
+                                filename
+                              }
+                              playerLinks {
+                                sourceId
+                              }
+                            }
                           }
                         }
                       }
-                      
-                      fragment eventFragment on IListingItem {
-                        ... on Event {
-                          id
-                          title
-                          date
-                          contentUrl
-                          images {
-                            filename
-                          }
-                          playerLinks {
-                            sourceId
-                          }
-                        }
-                      }
-                  '''
-                }),
+                  """,
+                    }
+                ),
                 callback=self.parse_response,
             ),
         ]
@@ -95,19 +96,35 @@ class SameheadsSpider(scrapy.Spider):
         response_json = json.loads(response.text)
         events = response_json["data"]["listing"]["data"]
         for event in events:
-          venue = self.name
-          date = parse_date(event["date"]).strftime("%d/%m/%y")
-          title = event["title"]
-          url = "https://ra.co" + event["contentUrl"]
-          thumbnail_url = event["images"][0]["filename"]
-          links = [playerLink["sourceId"] for playerLink in event["playerLinks"]]
-          yield EventItem(
-              id = EventUtils.build_id(venue, date, title),
-              extracted_at = EventUtils.get_current_datetime(),
-              venue = venue,
-              date = date,
-              title = title,
-              url = url,
-              thumbnail_url = thumbnail_url,
-              links = links,
-          )
+            venue = self.name
+            starts_at = datetime.fromisoformat(event["startTime"])
+            starts_at = starts_at.astimezone(pytz.timezone("Europe/Berlin"))
+            starts_on = str(starts_at.date())
+            starts_at = starts_at.isoformat()
+            title = event["title"]
+            assert title is not None
+            content_url = event["contentUrl"]
+            assert content_url is not None
+            url = "https://ra.co" + content_url
+            images = event["images"]
+            assert images is not None and len(images) > 0
+            thumbnail_url = event["images"][0]["filename"]
+            assert thumbnail_url is not None
+            player_links = event["playerLinks"]
+            assert player_links is not None
+            links = []
+            for player_link in player_links:
+                source_id = player_link["sourceId"]
+                assert source_id is not None
+                links.append(source_id)
+            yield EventItem(
+                id=EventUtils.build_event_id(venue, starts_on, title),
+                venue=venue,
+                starts_on=starts_on,
+                starts_at=starts_at,
+                title=title,
+                url=url,
+                thumbnail_url=thumbnail_url,
+                links=links,
+                extracted_at=datetime.now().isoformat(),
+            )

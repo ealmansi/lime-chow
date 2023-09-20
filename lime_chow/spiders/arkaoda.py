@@ -1,9 +1,12 @@
-import scrapy
-from urllib.parse import urljoin
-import validators
-from urlextract import URLExtract
+from datetime import datetime
 from lime_chow.items import EventItem
 from lime_chow.utils import EventUtils
+from urlextract import URLExtract
+from urllib.parse import urljoin
+import pytz
+import scrapy
+import validators
+
 
 class ArkaodaSpider(scrapy.Spider):
     name = "arkaoda"
@@ -12,53 +15,46 @@ class ArkaodaSpider(scrapy.Spider):
 
     def parse(self, response):
         hrefs = response.xpath("//a/@href").extract()
-        event_urls = set([
-            urljoin(response.url, href)
-            for href in hrefs
-            if "/default/detail" in href
-        ])
+        event_urls = set(
+            [urljoin(response.url, href) for href in hrefs if "/default/detail" in href]
+        )
         for event_url in event_urls:
             yield scrapy.Request(url=event_url, callback=self.parse_event)
 
     def parse_event(self, response):
         venue = self.name
-        date = self.get_event_date(response)
-        title = response.css(
-            "article h6::text"
-        ).extract_first().strip()
+        starts_on = self.parse_starts_on(response)
+        title = response.css("article h6::text").extract_first().strip()
         url = response.url
         thumbnail_url = urljoin(
             "https://berlin.arkaoda.com",
-            response.css(
-                "aside img::attr(src)"
-            ).extract_first().strip()
+            response.css("aside img::attr(src)").extract_first().strip(),
         )
-        links = self.get_event_links(response)
+        links = self.parse_links(response)
         yield EventItem(
-            id = EventUtils.build_id(venue, date, title),
-            extracted_at = EventUtils.get_current_datetime(),
-            venue = venue,
-            date = date,
-            title = title,
-            url = url,
-            thumbnail_url = thumbnail_url,
-            links = links,
+            id=EventUtils.build_event_id(venue, starts_on, title),
+            venue=venue,
+            starts_on=starts_on,
+            title=title,
+            url=url,
+            thumbnail_url=thumbnail_url,
+            links=links,
+            extracted_at=datetime.now().isoformat(),
         )
 
-    def get_event_date(self, response):
+    def parse_starts_on(self, response):
         date = response.css(".excerpt div b::text").extract_first()
-        [day, month, year] = date.split(" / ")
-        return "/".join([day, month, year[2:]])
+        assert date is not None
+        starts_on = datetime.strptime(date.strip(), "%d / %m / %Y")
+        starts_on = starts_on.astimezone(pytz.timezone("Europe/Berlin"))
+        starts_on = str(starts_on.date())
+        return starts_on
 
-    def get_event_links(self, response):
-        texts = response.css(
-            ".excerpt p ::text"
-        ).extract()
+    def parse_links(self, response):
+        texts = response.css(".excerpt p ::text").extract()
         url_extract = URLExtract()
         links = [
-            url
-            for urls in list(map(url_extract.find_urls, texts))
-            for url in urls
+            url for urls in list(map(url_extract.find_urls, texts)) for url in urls
         ]
         links = list(filter(validators.url, links))
         links = links[:10]
