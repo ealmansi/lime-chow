@@ -104,8 +104,15 @@ function renderEventInfo (event) {
     : parseISO(event.starts_on);
   const date = format(datetime, "dd.MM");
   const weekday = format(datetime, "EEEE");
+  const intl = new Intl.DateTimeFormat(
+    'en-US',
+    {
+      timeZone: "Europe/Berlin",
+      hour: "numeric",
+    },
+  );
   const time = event.starts_at
-    ? format(datetime, "haaa")
+    ? intl.format(datetime).toLowerCase().replace(" ", "")
     : undefined;
   const venueMetadata = getVenueMetadata(event.venue);
   return (`
