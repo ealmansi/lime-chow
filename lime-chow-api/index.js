@@ -306,6 +306,10 @@ function buildApp() {
     const events = await getEvents(documentClient);
     res.send(renderPage(events));
   });
+  app.get("/api", async function (_req, res) {
+    const events = await getEvents(documentClient);
+    res.send(events);
+  });
   app.use((_req, res, _next) => {
     res.sendStatus(404);
   });
