@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 from lime_chow.items import EventItem
 from lime_chow.utils import EventUtils
@@ -127,4 +128,5 @@ class SameheadsSpider(scrapy.Spider):
                 thumbnail_url=thumbnail_url,
                 links=links,
                 extracted_at=datetime.now().isoformat(),
+                ttl=int(time.time() + 36 * 3600),
             )

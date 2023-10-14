@@ -11,3 +11,4 @@ class EventItem(scrapy.Item):
     thumbnail_url = scrapy.Field()
     links = scrapy.Field()
     extracted_at = scrapy.Field()
+    ttl = scrapy.Field()

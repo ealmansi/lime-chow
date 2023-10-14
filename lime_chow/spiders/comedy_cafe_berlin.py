@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 from lime_chow.items import EventItem
 from lime_chow.utils import EventUtils
@@ -40,6 +41,7 @@ class ComedyCafeBerlinSpider(scrapy.Spider):
             thumbnail_url=thumbnail_url,
             links=[],
             extracted_at=datetime.now().isoformat(),
+            ttl=int(time.time() + 36 * 3600),
         )
 
     def parse_starts_on(self, response):
