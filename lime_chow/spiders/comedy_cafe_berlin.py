@@ -12,12 +12,18 @@ class ComedyCafeBerlinSpider(scrapy.Spider):
     start_urls = ["https://www.comedycafeberlin.com/schedule/"]
 
     def parse(self, response):
-        for event_url in response.css(
+        event_urls = response.css(
             ".tribe-events-pro-photo__event-title-link::attr(href)"
-        ).extract():
+        ).extract()
+        self.logger.info("parse response.url %s", response.url)
+        self.logger.info("parse response.text %s", response.text)
+        self.logger.info("parse event_urls %s", ", ".join(event_urls))
+        for event_url in event_urls:
             yield scrapy.Request(url=event_url, callback=self.parse_event)
 
     def parse_event(self, response):
+        self.logger.info("parse_event response.url %s", response.url)
+        self.logger.info("parse_event response.text %s", response.text)
         venue = self.name
         starts_on, starts_at = self.parse_starts_on(response)
         title = (
