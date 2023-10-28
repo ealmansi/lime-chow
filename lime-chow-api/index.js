@@ -14,7 +14,7 @@ const {
 /**
  *
  */
-function renderPage(events) {
+function renderHomePage(events) {
   return `
     <html lang="en">
     <head>
@@ -112,7 +112,8 @@ function renderEventInfo(event) {
   const time = event.starts_at
     ? intl.format(datetime).toLowerCase().replace(" ", "")
     : undefined;
-  const venueMetadata = getVenueMetadata(event.venue);
+  const venueMetadataByVenue = getVenueMetadataByVenue();
+  const venueMetadata = venueMetadataByVenue[event.venue];
   return `
     <h3 class="event-info">
       <em>${[
@@ -138,10 +139,16 @@ function renderVenueLink(venueMetadata) {
 function renderEventTitle(event) {
   return `
       <h2 class="event-title">
-        <a href="${event.url}" target="_blank" rel="noreferrer">
-          ${event.title}
-        </a>
+        ${renderLinkToEvent(event)}
       </h2>
+  `;
+}
+
+function renderLinkToEvent(event) {
+  return `
+    <a href="${event.url}" target="_blank" rel="noreferrer">
+      ${event.title}
+    </a>
   `;
 }
 
@@ -205,7 +212,7 @@ function getEventLinkPriority(link) {
   }
 }
 
-function getVenueMetadata(venue) {
+function getVenueMetadataByVenue() {
   return {
     ["madame_claude"]: {
       name: "Madame Claude",
@@ -252,7 +259,7 @@ function getVenueMetadata(venue) {
       neighbourhood: "Neukölln",
       link: "https://maps.app.goo.gl/9L4RMbxraSQ6jkyL8",
     },
-  }[venue];
+  };
 }
 
 function or(thunk, value) {
@@ -267,7 +274,7 @@ function or(thunk, value) {
 /**
  *
  */
-async function getEvents(documentClient) {
+async function getUpcomingEvents(documentClient) {
   const { Items: events } = await documentClient.send(
     new ScanCommand({
       TableName: "events",
@@ -298,16 +305,109 @@ function isUpcoming(event) {
 /**
  *
  */
+async function getInfo(documentClient) {
+  const events = await getUpcomingEvents(documentClient);
+  const venueMetadataByVenue = getVenueMetadataByVenue();
+  const venues = Object.keys(venueMetadataByVenue).sort();
+  return venues.map((venue) =>
+    getVenueInfo(venue, venueMetadataByVenue[venue], events),
+  );
+}
+
+function getVenueInfo(venue, venueMetadata, events) {
+  const eventsAtVenue = events.filter((event) => event.venue === venue);
+  const eventsAtVenueCount = eventsAtVenue.length;
+  const nextEventAtVenue = eventsAtVenue.at(0);
+  return {
+    ...venueMetadata,
+    eventsAtVenueCount,
+    nextEventAtVenue,
+  };
+}
+
+/**
+ *
+ */
+function renderInfoPage(info) {
+  return `
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chow</title>
+    <style>
+      html, body {
+        width: 100%;
+        margin: 0px;
+        padding: 0px;
+        font-family: sans-serif;
+      }
+      .info {
+        width: min(380px, 100% - 20px);
+        margin: 0px 0px 20px 0px;
+        padding: 10px;
+        list-style-type: none;
+      }
+    </style>
+  </head>
+  <body>
+    ${or(() => renderInfo(info), "Something went wrong.")}
+  </body>
+  </html>
+`;
+}
+
+function renderInfo(info) {
+  return `
+    <ul class="info">
+    ${info
+      .map((venueInfo) => or(() => renderVenueInfo(venueInfo), undefined))
+      .filter((html) => html !== undefined)
+      .join("<hr />")}
+    </ul>
+  `;
+}
+
+function renderVenueInfo(venueInfo) {
+  const chunks = [
+    renderVenueLink(venueInfo),
+    `${venueInfo.eventsAtVenueCount} ${
+      venueInfo.eventsAtVenueCount !== 1 ? "events" : "event"
+    }`,
+  ];
+  if (venueInfo.nextEventAtVenue !== undefined) {
+    const nextEventAtVenue = venueInfo.nextEventAtVenue;
+    const datetime = nextEventAtVenue.starts_at
+      ? parseISO(nextEventAtVenue.starts_at)
+      : parseISO(nextEventAtVenue.starts_on);
+    const date = format(datetime, "dd.MM");
+    chunks.push.apply(chunks, [
+      `Next event on ${date}`,
+      renderLinkToEvent(nextEventAtVenue),
+    ]);
+  }
+  return `
+    <li>${chunks.join(" • ")}</li>
+  `;
+}
+
+/**
+ *
+ */
 function buildApp() {
   const documentClient = DynamoDBDocumentClient.from(new DynamoDBClient());
   const app = express();
   app.use(express.json());
   app.get("/", async function (_req, res) {
-    const events = await getEvents(documentClient);
-    res.send(renderPage(events));
+    const events = await getUpcomingEvents(documentClient);
+    res.send(renderHomePage(events));
+  });
+  app.get("/info", async function (_req, res) {
+    const info = await getInfo(documentClient);
+    res.send(renderInfoPage(info));
   });
   app.get("/api", async function (_req, res) {
-    const events = await getEvents(documentClient);
+    const events = await getUpcomingEvents(documentClient);
     res.send(events);
   });
   app.use((_req, res, _next) => {

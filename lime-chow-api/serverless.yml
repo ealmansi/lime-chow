@@ -1,12 +1,12 @@
 service: lime-chow-api
 
-frameworkVersion: '3'
+frameworkVersion: "3"
 
 functions:
   api:
     handler: index.handler
     events:
-      - httpApi: '*'
+      - httpApi: "*"
 
 provider:
   name: aws
@@ -24,7 +24,7 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - Fn::GetAtt: [ EventsTable, Arn ]
+            - Fn::GetAtt: [EventsTable, Arn]
 
 resources:
   Resources:

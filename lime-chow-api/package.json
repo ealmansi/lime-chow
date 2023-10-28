@@ -2,6 +2,10 @@
   "name": "lime-chow-api",
   "version": "1.0.0",
   "description": "",
+  "scripts": {
+    "format": "prettier --write .",
+    "dev": "serverless offline --reloadHandler --noTimeout"
+  },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.414.0",
     "@aws-sdk/lib-dynamodb": "^3.414.0",
