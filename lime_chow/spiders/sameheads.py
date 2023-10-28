@@ -45,7 +45,9 @@ class SameheadsSpider(scrapy.Spider):
                                 },
                                 {
                                     "type": "DATERANGE",
-                                    "value": '{"gte":"2023-09-19T15:55:00.000Z"}',
+                                    "value": '{"gte":"'
+                                    + datetime.now().isoformat()
+                                    + '"}',
                                 },
                             ],
                             "sortOrder": "ASCENDING",
