@@ -27,9 +27,14 @@ class ArkaodaSpider(scrapy.Spider):
         starts_on = self.parse_starts_on(response)
         title = response.css("article h6::text").extract_first().strip()
         url = response.url
-        thumbnail_url = urljoin(
-            "https://berlin.arkaoda.com",
-            response.css("aside img::attr(src)").extract_first().strip(),
+        images = response.css("aside a.highslide img::attr(src)")
+        thumbnail_url = (
+            urljoin(
+                "https://berlin.arkaoda.com",
+                images.extract_first().strip(),
+            )
+            if len(images) > 0
+            else "https://berlin.arkaoda.com/images/logo.png"
         )
         links = self.parse_links(response)
         yield EventItem(
