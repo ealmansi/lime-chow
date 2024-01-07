@@ -34,7 +34,7 @@ class ArkaodaSpider(scrapy.Spider):
                 images.extract_first().strip(),
             )
             if len(images) > 0
-            else "https://berlin.arkaoda.com/images/logo.png"
+            else "https://berlin.arkaoda.com/images/null.png"
         )
         links = self.parse_links(response)
         yield EventItem(
