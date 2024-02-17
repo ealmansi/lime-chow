@@ -24,7 +24,7 @@ class ComedyCafeBerlinSpider(scrapy.Spider):
         title = response.css(".wp-block-heading::text").extract_first().strip()
         url = response.url
         thumbnail_url = (
-            response.css(".wp-block-kadence-image img::attr(src)")
+            response.css(".wp-block-post-featured-image img::attr(src)")
             .extract_first()
             .strip()
         )
