@@ -234,11 +234,6 @@ function getVenueMetadataByVenue() {
       neighbourhood: "Neukölln",
       link: "https://maps.app.goo.gl/Kw3fqNnTjFdbYMu49",
     },
-    ["loophole"]: {
-      name: "Loophole",
-      neighbourhood: "Neukölln",
-      link: "https://maps.app.goo.gl/6Swi31q6NDWCdpQZ7",
-    },
     ["arkaoda"]: {
       name: "Arkaoda",
       neighbourhood: "Neukölln",
@@ -278,7 +273,7 @@ async function getUpcomingEvents(documentClient) {
   const { Items: events } = await documentClient.send(
     new ScanCommand({
       TableName: "events",
-    }),
+    })
   );
   return events.sort(compareEvents).filter(isUpcoming);
 }
@@ -310,7 +305,7 @@ async function getInfo(documentClient) {
   const venueMetadataByVenue = getVenueMetadataByVenue();
   const venues = Object.keys(venueMetadataByVenue).sort();
   return venues.map((venue) =>
-    getVenueInfo(venue, venueMetadataByVenue[venue], events),
+    getVenueInfo(venue, venueMetadataByVenue[venue], events)
   );
 }
 
